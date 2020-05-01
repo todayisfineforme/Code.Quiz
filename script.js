@@ -1,4 +1,6 @@
-$(document).ready(function(){    
+$(document).ready(function(){  
+    
+    // START of variable declarations
     var highScoreList = checkForHighScore();
 
     var currentScore = 0;
@@ -7,6 +9,7 @@ $(document).ready(function(){
 
     var timer = 0;
 
+    // array holding questions as objects
     var questions = [
         {
             question: "What is a function?",
@@ -59,9 +62,11 @@ $(document).ready(function(){
             correct: 2
         }    
     ];
+    // END of variable declarations
 
+    // START of functions section
 
-
+    // functions beginning quiz
     function startQuiz(){
         currentQuestion = 0;
         currentScore = 0;
@@ -103,7 +108,7 @@ $(document).ready(function(){
     }
 
 
-
+    // functions that write the questions
     function writeQuestion(){
         $('#questionDisplay').empty();
         $('#questionDisplay').append(`
@@ -140,12 +145,12 @@ $(document).ready(function(){
     }
 
 
-
+    // functions to evaluate the answer clicks
     function evaluateAnswer(index, button){
         if ( $(button).hasClass('disabled')) {
             console.log('disabled');
         } else {
-            if (currentQuestion < 9){
+            if (currentQuestion < (questions.length - 1)){
                 disableAndCheck(index, button);
                 setTimeout(function() {
                     nextQuestion();   
@@ -187,7 +192,7 @@ $(document).ready(function(){
     }
 
 
-
+    // function that writes the final score
     function finalScore(){
         $('#mainDisplay').empty();   
         $('#mainDisplay').append(`
@@ -212,7 +217,7 @@ $(document).ready(function(){
     }
 
 
-
+    // functions that write, handle and submit the high score 
     function submitHighScore(){
         checkForHighScore();
         var initials = $('#userInitials').val();
@@ -258,7 +263,7 @@ $(document).ready(function(){
     }
 
 
-
+    // function that writes the rules on the screen
     function writeRules(){
         $('#mainDisplay').empty();
         $('#mainDisplay').append(`
@@ -280,9 +285,10 @@ $(document).ready(function(){
             </div>
         `);
     }
+    // END of Functions section
 
-
-
+    // START of click listeners
+    // nav bar listeners
     $('#startQuiz').on('click', function() {
         startQuiz();
     });
@@ -300,6 +306,7 @@ $(document).ready(function(){
         writeRules();
     });
 
+    // question listeners
     $('#mainDisplay').delegate('#answerZero', 'click', function() {
         evaluateAnswer(0, this);
     });
@@ -316,10 +323,11 @@ $(document).ready(function(){
         evaluateAnswer(3, this);
     });
 
+    // submit high score listener after quiz is over
     $('#mainDisplay').delegate('#submitCurrentScore', 'click', function() {
         checkForHighScore();
         submitHighScore();
         writeHighScore();
     });
-
+    // END of click listeners
 });
