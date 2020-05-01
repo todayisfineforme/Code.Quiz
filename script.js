@@ -1,10 +1,11 @@
-    
 $(document).ready(function(){    
-    var highScores = [];
+    var highScoreList = checkForHighScore();
 
     var currentScore = 0;
 
     var currentQuestion = 0;
+
+    var timer = 0;
 
     var questions = [
         {
@@ -14,7 +15,7 @@ $(document).ready(function(){
         },
         {
             question: " ______ tag is an extension to HTML that can enclose any number of JavaScript statements.",
-            answers: ["<SCRIPT>", "<BODY>", "<HEAD>", "<TITLE>"],
+            answers: ["SCRIPT", "BODY", "HEAD", "TITLE"],
             correct: 0
         },
         {
@@ -49,21 +50,21 @@ $(document).ready(function(){
         },
         {
             question: 'What is the correct JavaScript syntax to write "Hello World"?',
-            answers: ['System.out.println("Hello World")', 'println ("Hello World")', 'document.write("Hello World")', 'response.write("Hello World")'],
+            answers: ['"System.out.println("Hello World")"', '"println ("Hello World")"', '"document.write("Hello World")"', '"response.write("Hello World")"'],
             correct: 2
         },
         {
             question: 'What is the correct syntax for referring to an external script called " abc.js"?',
-            answers: ['<script href=" abc.js">', '<script name=" abc.js">', '<script src=" abc.js">', 'None of the above'],
+            answers: ['"script href=" abc.js', '"script name=" abc.js"', 'script src=" abc.js"', 'None of the above'],
             correct: 2
         }    
     ];
 
 
 
-
     function startQuiz(){
         currentQuestion = 0;
+        currentScore = 0;
         $('#mainDisplay').empty();
         $('#mainDisplay').append(`
             <div id="timeDisplay">
@@ -71,7 +72,7 @@ $(document).ready(function(){
                     <h3>time remaining <span id="time"></span></h3>
                 </div>
             </div>
-            <div id="questionDisplay">
+            <div class="container-fluid" id="questionDisplay">
             </div>
         `);
         startTimer(180, $('#time'));
@@ -82,11 +83,10 @@ $(document).ready(function(){
 
     function startTimer(duration, display) {
         if (!isNaN(duration)) {
-            var timer = duration, minutes, seconds;
-            
+            timer = duration;
             var interVal=  setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+                var minutes = parseInt(timer / 60, 10);
+                var seconds = parseInt(timer % 60, 10);
 
                 minutes = minutes < 10 ? "0" + minutes : minutes;
                 seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -94,13 +94,14 @@ $(document).ready(function(){
                 $(display).html( minutes + ":" + seconds );
                 if (--timer < 0) {
                     timer = duration;
-                $('#time').empty();
-                clearInterval(interVal);
-                finalScore();
+                    $('#time').empty();
+                    clearInterval(interVal);
+                    finalScore();
                 }
-                },1000);
+            },1000);
         }
     }
+
 
 
     function writeQuestion(){
@@ -132,19 +133,44 @@ $(document).ready(function(){
     }
 
 
+
     function nextQuestion(){
         currentQuestion = currentQuestion + 1;
         writeQuestion();
     }
 
+
+
     function evaluateAnswer(index, button){
-        if (questions[currentQuestion].correct === index ){
-            correctAnswer(button);
+        if ( $(button).hasClass('disabled')) {
+            console.log('disabled');
         } else {
-            wrongAnswer(button);
+            if (currentQuestion < 9){
+                disableAndCheck(index, button);
+                setTimeout(function() {
+                    nextQuestion();   
+                } , 2000);
+            } else {
+                disableAndCheck(index, button);
+                setTimeout(function() {
+                    finalScore();
+                } , 2000);     
+            }
         }
-        nextQuestion();
     }
+
+
+
+    function disableAndCheck(index, button){
+        $('#questionDisplay button').addClass('disabled');
+                if (questions[currentQuestion].correct === index ){
+                    correctAnswer(button);
+                } else {
+                    wrongAnswer(button);
+                }
+    }
+
+
 
     function correctAnswer(button){
         $(button).removeClass( "btn-secondary" );
@@ -152,13 +178,18 @@ $(document).ready(function(){
         currentScore = currentScore + 1;
     }
 
+
+
     function wrongAnswer(button){
         $(button).removeClass( "btn-secondary" );
         $(button).addClass( "btn-danger" );
+        timer -= 20; //for future reference same as timer = timer - 20;
     }
 
+
+
     function finalScore(){
-        $('#mainDisplay').empty();
+        $('#mainDisplay').empty();   
         $('#mainDisplay').append(`
             <div id="finalScoreDisplay">
                 <div class="row justify-content-center">
@@ -174,7 +205,7 @@ $(document).ready(function(){
                     <div class="form-group">
                         <input type="name" class="form-control" id="userInitials" placeholder="Input your initials">
                     </div> 
-                    <input class="btn btn-secondary h-75" type="submit" value="Submit">
+                    <input class="btn btn-secondary h-75" id="submitCurrentScore" type="submit" value="Submit">
                 </div>
             </div>
         `);
@@ -182,8 +213,20 @@ $(document).ready(function(){
 
 
 
+    function submitHighScore(){
+        checkForHighScore();
+        var initials = $('#userInitials').val();
+        var scoreArray = [ initials, currentScore ];
+        highScoreList.push(scoreArray);
+        highScoreList = highScoreList.sort(function(a,b){
+            return b[1] - a[1];
+        });
+        localStorage.setItem("highScoreList" , JSON.stringify(highScoreList));
+    }
 
-    function writeHighScore(initials, score){
+
+
+    function writeHighScore(){
         $('#mainDisplay').empty();
         $('#mainDisplay').append(`
             <div id="highScoreDisplay">
@@ -192,18 +235,27 @@ $(document).ready(function(){
                 </div>
             </div>
         `);
-        highScores.forEach(
+        for ( var i = 0; i < highScoreList.length; i++ ){
             $('#highScoreDisplay').append(`
                 <div class="row justify-content-center">
                     <div class="alert alert-secondary" role="alert">
-                        ${initials} - ${score}
+                        ${highScoreList[i][0]} - ${highScoreList[i][1]}
                     </div>
                 </div>
-            `)
-        );
+            `);
+        }
             
     }
 
+
+
+    function checkForHighScore(){
+        if ( highScoreList === null) {
+            highScoreList = [];
+        } else {
+            highScoreList = JSON.parse(localStorage.getItem("highScoreList"));
+        }
+    }
 
 
 
@@ -220,7 +272,7 @@ $(document).ready(function(){
                         <br>
                         <h4> 3:00 minutes </h4>
                         <br>
-                        <h4> get a question wrong, you lose 0:15</h4>
+                        <h4> get a question wrong, you lose 0:20</h4>
                         <br>
                         <h4> quiz is over when you run out of time or answer all questions</h4>
                     </div>
@@ -240,39 +292,34 @@ $(document).ready(function(){
     });
 
     $('#highScorePage').on('click', function() {
+        checkForHighScore();
         writeHighScore();
     });
 
     $('#rulesPage').on('click', function() {
-        console.log("rules pressed");
         writeRules();
     });
 
+    $('#mainDisplay').delegate('#answerZero', 'click', function() {
+        evaluateAnswer(0, this);
+    });
 
-
-    $('#answerZero').on('click', function() {
-        console.log("answerzero clicked");
+    $('#mainDisplay').delegate('#answerOne', 'click', function() {
+        evaluateAnswer(1, this);
     });
     
-    //evaluateAnswer(0,'#answerZero'));
+    $('#mainDisplay').delegate('#answerTwo', 'click', function() {
+        evaluateAnswer(2, this);
+    });
+    
+    $('#mainDisplay').delegate('#answerThree', 'click', function() {
+        evaluateAnswer(3, this);
+    });
 
-    $('#answerOne').on('click', evaluateAnswer(1,'#answerOne'));
-
-    $('#answerTwo').on('click', evaluateAnswer(2,'#answerTwo'));
-
-    $('#answerThree').on('click', evaluateAnswer(3,'#answerThree'));
-
-    document.getElementById('answerZero').addEventListener('click', function(){console.log('answer0 clicked')});
-
-    // $('#answer3').on('click', function() {
-    //     debugger;
-    //     if (questions[currentQuestion].correct === 3 ){
-    //         correctAnswer('#answer3');
-    //     } else {
-    //         wrongAnswer('#answer3');
-    //     }
-    //     nextQuestion();
-    // });
-
+    $('#mainDisplay').delegate('#submitCurrentScore', 'click', function() {
+        checkForHighScore();
+        submitHighScore();
+        writeHighScore();
+    });
 
 });
