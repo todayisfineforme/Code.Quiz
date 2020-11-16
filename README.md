@@ -12,6 +12,7 @@ quiz is over when you run out of time or answer all questions
 
 ## Usage
 
+clone repo and open 'index.html' in preferred browser.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
