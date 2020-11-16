@@ -14,10 +14,6 @@ quiz is over when you run out of time or answer all questions
 
 Use the node package manager [npm](https://nodejs.org/en/) to install foobar.
 
-```bash
-npm install foobar
-```
-
 ## Usage
 
 ```node.js
