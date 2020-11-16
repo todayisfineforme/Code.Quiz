@@ -6,7 +6,7 @@ quiz is over when you run out of time or answer all questions
 
 https://todayisfineforme.github.io/homework.code.quiz.nathan.hall/
 
-# Foobar
+# Code Quiz
 
 Foobar is a Python library for dealing with word pluralization.
 
