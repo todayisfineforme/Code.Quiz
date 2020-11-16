@@ -1,5 +1,3 @@
-https://todayisfineforme.github.io/homework.code.quiz.nathan.hall/
-
 # Code Quiz
 
 Simple Javascript Quiz
