@@ -10,8 +10,6 @@ get a question wrong, you lose 0:20
 
 quiz is over when you run out of time or answer all questions
 
-## Installation
-
 ## Usage
 
 ```node.js
